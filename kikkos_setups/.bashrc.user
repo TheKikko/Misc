@@ -15,14 +15,39 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' \
   --color=marker:#fabd2f,spinner:#98971a,header:#fb4934'
 
 # Prompt (username, git branch, cwd, time)
+# old:
+# git_branch_formatting() {
+#   output=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
+#   [ -n "$output" ] && echo "@$output"
+# }
+# export PS1="\[\033[38;5;12m\]\u\[$(tput sgr0)\]\
+# \[\033[38;5;82m\]\$(git_branch_formatting)\[$(tput sgr0)\]:\
+# \[\033[38;5;205m\]\w\[$(tput sgr0)\]\
+# \[\033[38;5;141m\]-\A\[$(tput sgr0)\] \\$ "
+
 git_branch_formatting() {
-  output=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
-  [ -n "$output" ] && echo "@$output"
+  branch=$(git branch --show-current 2>/dev/null)
+  [ -n "$branch" ] && echo "⎇(($branch)"
 }
-export PS1="\[\033[38;5;12m\]\u\[$(tput sgr0)\]\
-\[\033[38;5;82m\]\$(git_branch_formatting)\[$(tput sgr0)\]:\
-\[\033[38;5;205m\]\w\[$(tput sgr0)\]\
-\[\033[38;5;141m\]-\A\[$(tput sgr0)\] \\$ "
+
+if [ "$UID" -eq 0 ]; then
+  # Root: red user/host, keep branch/path/time consistent
+  export PS1="\
+\[\033[38;5;196m\]\u@\h\[$(tput sgr0)\]\
+\[\033[38;5;142m\]\$(git_branch_formatting)\[$(tput sgr0)\]:\
+\[\033[38;5;208m\]\w\[$(tput sgr0)\]\
+\[\033[38;5;175m\]-\A\[$(tput sgr0)\] \\$ "
+else
+  # Normal user: gruvbox palette
+  export PS1="\
+\[\033[38;5;109m\]\u\[$(tput sgr0)\]@\
+\[\033[38;5;214m\]\h\[$(tput sgr0)\]\
+\[\033[38;5;142m\]\$(git_branch_formatting)\[$(tput sgr0)\]:\
+\[\033[38;5;208m\]\w\[$(tput sgr0)\]\
+\[\033[38;5;175m\]-\A\[$(tput sgr0)\] \\$ "
+fi
+
+
 
 # Functions
 convert_base() {
@@ -54,4 +79,7 @@ grf3() {
 if [ -f ~/.bash_aliases ]; then
   source ~/.bash_aliases
 fi
+
+
+EDITOR="vim"
 

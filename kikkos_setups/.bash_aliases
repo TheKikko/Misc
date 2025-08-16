@@ -1,16 +1,15 @@
 # ~/.bash_aliases
 
-export $MYSCRIPTS="/home/kikko/Source/scripts/"
+export MYSCRIPTS="/home/kikko/Source/scripts/"
 # ls shortcuts
 alias ls='ls --color=auto'
-alias la='ls -laFq'  # hidden files
+alias la='ls -lahFq'  # hidden files
 alias ll='ls -lhFq'  # human-readable sizes
-alias l='ll'
+alias l='la'
 
 # Git shortcuts
 alias gbc='gb | c'
-alias gcl='cd $MY_GIT_TOP && git submodule foreach --recursive "git clean -xdf" && \
-           git clean -xdf -e .ccache -e .flex_dbg -e remap_catalog\*.xml -e .baseline && cd -'
+alias gcl='cd $MY_GIT_TOP && git submodule foreach --recursive "git clean -xdf" && cd -'
 alias gdt='$MYPATH/scripts/vimdiff_tabs.sh'
 alias gdf='git status -s | fzf -m --preview "echo {} | cut -c4- | \
            xargs -I % git diff --color=always -- % | less"'
@@ -32,6 +31,6 @@ alias gusa='cd $MY_GIT_TOP; git restore --staged $(git diff --name-only --staged
 alias go='git checkout'
 
 # Misc
-alias vimdotfiles='$EDITOR ~/.vimrc ~/.bashrc.user.alias ~/.bashrc.user \
+alias vimdotfiles='$EDITOR ~/.vimrc ~/.bash_aliases ~/.bashrc.user \
                    $MYSCRIPTS/start_tmux* ~/.gitconfig ~/.lesshst ~/.tmux.conf'
 alias resource="source ~/.bashrc && echo 'sourced!'"
