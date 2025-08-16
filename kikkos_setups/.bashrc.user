@@ -1,0 +1,57 @@
+# ~/.bashrc_user
+
+# Shared history between terminals
+export PROMPT_COMMAND="history -a; history -n;"
+
+# Less pager options
+export LESS="--ignore-case --LONG-PROMPT --squeeze-blank-lines --HILITE-UNREAD \
+--search-skip-screen --RAW-CONTROL-CHARS -F"
+
+# FZF default color theme
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' \
+  --color=fg:#f9f5d7,bg:#282828,hl:#d65d0e \
+  --color=fg+:#ebdbb2,bg+:#3c3836,hl+:#fe8019 \
+  --color=info:#689d6a,prompt:#cc241d,pointer:#b16286 \
+  --color=marker:#fabd2f,spinner:#98971a,header:#fb4934'
+
+# Prompt (username, git branch, cwd, time)
+git_branch_formatting() {
+  output=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')
+  [ -n "$output" ] && echo "@$output"
+}
+export PS1="\[\033[38;5;12m\]\u\[$(tput sgr0)\]\
+\[\033[38;5;82m\]\$(git_branch_formatting)\[$(tput sgr0)\]:\
+\[\033[38;5;205m\]\w\[$(tput sgr0)\]\
+\[\033[38;5;141m\]-\A\[$(tput sgr0)\] \\$ "
+
+# Functions
+convert_base() {
+  echo "obase=$2;ibase=$1;$3" | bc
+}
+
+calc() {
+  echo "$1" | bc -l
+}
+
+grf3() {
+  git status -s | fzf -m --preview '
+    file=$(echo {} | cut -c4-);
+    staged_diff=$(git diff --staged --color=always -- "$file");
+    unstaged_diff=$(git diff --color=always -- "$file");
+    BLUE="\033[34m"; RESET="\033[0m";
+    if [ -n "$staged_diff" ]; then
+      echo -e "${BLUE}Staged vs. HEAD:${RESET}";
+      echo "$staged_diff"; echo;
+    fi
+    if [ -n "$unstaged_diff" ]; then
+      echo -e "${BLUE}Unstaged vs. staged:${RESET}";
+      echo "$unstaged_diff";
+    fi
+  ' | less -R | awk '{print $NF}' | xargs git restore --source HEAD --
+}
+
+# Load aliases (if available)
+if [ -f ~/.bash_aliases ]; then
+  source ~/.bash_aliases
+fi
+
